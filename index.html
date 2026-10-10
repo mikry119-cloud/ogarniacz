@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2F4858">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ogarniacz">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Ogarniacz</title>
+<style>
+:root{--bg:#F4F1EA;--card:#fff;--ink:#23323A;--mut:#6B7B80;--pri:#2F4858;--acc:#4E8A7E;--warm:#E9B872;--bad:#C0583F;--line:#E3DED3}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;padding:calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 10px calc(14px + env(safe-area-inset-left));display:flex;align-items:center;gap:8px}
+header h1{font-size:18px;margin:0;flex:1;font-weight:600;letter-spacing:.3px}
+header select{background:#ffffff22;color:#fff;border:0;border-radius:8px;padding:4px 6px}
+header select option{color:#000}
+main{padding:12px calc(12px + env(safe-area-inset-right)) calc(84px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));max-width:640px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:4px env(safe-area-inset-right) calc(4px + env(safe-area-inset-bottom)) env(safe-area-inset-left);z-index:5}
+nav button{flex:1;background:none;border:0;padding:6px 0;font-size:11px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button b{font-size:20px;font-weight:400;line-height:1}
+nav button.on{color:var(--pri);font-weight:600}
+.card{background:var(--card);border-radius:14px;padding:14px;margin:0 0 12px;box-shadow:0 1px 2px #0000000d;border:1px solid var(--line)}
+.card h2{font-size:16px;margin:0 0 8px}.card h3{font-size:14px;margin:10px 0 6px;color:var(--mut)}
+.mut{color:var(--mut);font-size:13px}.small{font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1;min-width:0}.row>.nf{flex:0 0 auto}
+input,select,textarea{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
+button{font:inherit}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:9px 14px;cursor:pointer}
+.btn.sec{background:#E8EEEC;color:var(--pri)}.btn.acc{background:var(--acc)}.btn.bad{background:var(--bad)}.btn.sm{padding:5px 10px;font-size:13px}
+.li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}.li:last-child{border:0}
+.li .t{flex:1;min-width:0}.li.done .t{text-decoration:line-through;color:var(--mut)}
+.x{background:none;border:0;color:var(--mut);font-size:18px;padding:0 4px}
+.chip{display:inline-block;background:#E8EEEC;color:var(--pri);border-radius:20px;padding:2px 9px;font-size:12px;margin:2px 4px 2px 0}
+.chip.w{background:#F7E8CF;color:#7A5418}.chip.b{background:#F5DAD2;color:var(--bad)}.chip.g{background:#D9ECE5;color:#2E6B5C}
+.big{font-size:28px;font-weight:700}.alert{background:#F5DAD2;color:#7E2E1C;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.ok{background:#D9ECE5;color:#24574A;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.bar{height:8px;background:#E8EEEC;border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+.timer{font-size:56px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;margin:8px 0}
+.mic{width:46px;height:46px;border-radius:50%;border:0;background:var(--acc);color:#fff;font-size:20px;flex:0 0 46px}.mic.rec{background:var(--bad);animation:p 1s infinite}
+@keyframes p{50%{opacity:.6}}
+.modal{position:fixed;inset:0;background:#0008;z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal .card{max-width:420px;width:100%}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:5px 4px;border-bottom:1px solid var(--line);text-align:left}
+a{color:var(--acc)}.hide{display:none!important}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom));background:#23323Aee;color:#fff;padding:9px 14px;border-radius:10px;z-index:30;max-width:90%;font-size:14px}
+</style></head><body>
+<header><h1 id="ttl">Ogarniacz</h1><select id="lang" aria-label="Język"><option value="pl">PL</option><option value="nl">NL</option><option value="en">EN</option></select></header>
+<main id="main"></main>
+<nav id="nav"></nav>
+<div id="toast" class="hide"></div>
+<script>
+'use strict';
+/* ===== i18n ===== */
+const I={
+pl:{today:'Dziś',cal:'Kalendarz',lists:'Listy',budget:'Budżet',supply:'Zapas',more:'Więcej',
+morning:'Dzień dobry',afternoon:'Dzień dobry',evening:'Dobry wieczór',planToday:'Twój plan na dziś',nothing:'Nic nie zaplanowano. Dodaj zadanie w kalendarzu.',
+wasPlanned:'tak było zaplanowane',readAloud:'Przeczytaj na głos',routine:'Poranna rutyna',startRoutine:'Start rutyny',step:'Krok',of:'z',next:'Dalej',done:'Gotowe',skip:'Pomiń',addStep:'Dodaj krok',min:'min',
+routineDone:'Rutyna zakończona w',over:'za długo o',endWork:'Koniec pracy – plan na jutro',firstStep:'Od czego zacząć jutro',addTomorrow:'Dodaj na jutro',tomorrowSaved:'Zapisano w kalendarzu na jutro',
+title:'Tytuł',date:'Data',time:'Godz.',place:'Miejsce',none:'— brak —',add:'Dodaj',task:'Zadanie',event:'Wydarzenie',importIcs:'Import .ics',exportIcs:'Eksport .ics',
+gcal:'Synchronizacja z Google Calendar wymaga OAuth i serwera – planowana opcja. Na razie: eksport/import .ics (Google Calendar → Ustawienia → Importuj).',upcoming:'Nadchodzące',imported:'Zaimportowano',saved:'Zapisano',
+newList:'Nowa lista',listName:'Nazwa listy',item:'Pozycja',dictate:'Dyktuj',dictHint:'Np. „na działkę potrzebuję worki na śmieci, nawóz i rękawice”',listening:'Słucham…',noSpeech:'Rozpoznawanie mowy niedostępne w tej przeglądarce',
+places:'Miejsca',placeName:'Nazwa miejsca',useGps:'Tu jestem (GPS)',searchAddr:'Szukaj adresu',radius:'Promień (km)',watchOn:'Przypomnienia o miejscach: włączone (gdy aplikacja otwarta)',watchOff:'Włącz przypomnienia o miejscach',
+nearPlace:'Jesteś blisko',onWay:'W drodze do',buy:'kup',shopRoute:'Sklep po drodze',findShop:'Znajdź supermarket po drodze',shopsNone:'Brak wyników (offline albo brak sklepów w pobliżu)',from:'od Ciebie',
+amount:'Kwota (€)',cat:'Kategoria',note:'Notatka',month:'Miesiąc',total:'Razem',byCat:'Wg kategorii',
+cats:'Jedzenie,Dom,Działka,Transport,Zdrowie,Rachunki,Rozrywka,Inne',
+settings:'Ustawienia',name:'Twoje imię',home:'Dom (punkt startowy)',notif:'Powiadomienia',enableNotif:'Zezwól na powiadomienia',backup:'Kopia zapasowa (JSON)',restore:'Przywróć',
+age:'Moduł dla pacjentów medycznej marihuany (18+)',ageQ:'Potwierdzam, że mam ukończone 18 lat i używam konopi z przepisu lekarza.',disc:'To nie jest porada medyczna. Aplikacja tylko liczy zapas – nie podaje dawek ani zaleceń.',confirm:'Potwierdzam',
+stock:'Zapas łącznie',avg7:'Średnio / dzień (7 dni)',runout:'Skończy się ok.',orderBy:'Zamów / poproś o receptę do',critical:'Zapas krytyczny',threshold:'Próg krytyczny (g)',delivery:'Dni dostawy',rxLead:'Dni na receptę',
+jars:'Słoiki / zakupy',strain:'Odmiana',grams:'Gramy',bought:'Kupiono',addJar:'Dodaj słoik',weigh:'Ważenie dziś',startDay:'Początek dnia (g)',endDay:'Koniec dnia (g)',saveWeigh:'Zapisz ważenie',
+used:'zużyto',left:'zostało',history:'Historia (dzienne zużycie)',noData:'Za mało danych – zważ słoik na początku i na końcu dnia.',belowCrit:'Zapas poniżej progu krytycznego!',orderNow:'Czas zamówić / poprosić o receptę',
+price:'Aktualna cena',regular:'cena regularna (bez wyprzedaży)',pharm:'Apteki z tą odmianą',pickupYes:'odbiór osobisty: tak',pickupUnk:'odbiór: nieznany',routes:'Policz trasy',car:'auto',bike:'rower',walk:'pieszo',pt:'komunikacja',est:'szacunek',
+noMatch:'Brak tej odmiany w bazie cen.',loading:'Ładowanie…',offline:'Offline – używam zapisanych danych',dist:'odl.',active:'w użyciu',closed:'pusty',del:'Usuń',
+prDisc:'Ceny z publicznych porównywarek (DE), mogą być nieaktualne. Cena = regularna, nie wyprzedażowa.',locFrom:'Liczone od',gps:'GPS',notifTitle:'Ogarniacz'},
+nl:{today:'Vandaag',cal:'Agenda',lists:'Lijsten',budget:'Budget',supply:'Voorraad',more:'Meer',
+morning:'Goedemorgen',afternoon:'Goedemiddag',evening:'Goedenavond',planToday:'Je plan voor vandaag',nothing:'Niets gepland. Voeg een taak toe in de agenda.',
+wasPlanned:'zo was het gepland',readAloud:'Voorlezen',routine:'Ochtendroutine',startRoutine:'Start routine',step:'Stap',of:'van',next:'Verder',done:'Klaar',skip:'Overslaan',addStep:'Stap toevoegen',min:'min',
+routineDone:'Routine klaar in',over:'te lang met',endWork:'Einde werkdag – plan voor morgen',firstStep:'Waar morgen mee beginnen',addTomorrow:'Toevoegen voor morgen',tomorrowSaved:'Opgeslagen in agenda voor morgen',
+title:'Titel',date:'Datum',time:'Tijd',place:'Plaats',none:'— geen —',add:'Toevoegen',task:'Taak',event:'Afspraak',importIcs:'Import .ics',exportIcs:'Export .ics',
+gcal:'Synchronisatie met Google Calendar vereist OAuth en een server – toekomstige optie. Nu: .ics export/import.',upcoming:'Komend',imported:'Geïmporteerd',saved:'Opgeslagen',
+newList:'Nieuwe lijst',listName:'Naam lijst',item:'Item',dictate:'Dicteren',dictHint:'Bijv. „voor de volkstuin heb ik vuilniszakken en mest nodig”',listening:'Luisteren…',noSpeech:'Spraakherkenning niet beschikbaar',
+places:'Plaatsen',placeName:'Naam plaats',useGps:'Ik ben hier (GPS)',searchAddr:'Adres zoeken',radius:'Straal (km)',watchOn:'Plaatsherinneringen: aan (als app open is)',watchOff:'Plaatsherinneringen aanzetten',
+nearPlace:'Je bent dichtbij',onWay:'Onderweg naar',buy:'koop',shopRoute:'Winkel onderweg',findShop:'Supermarkt onderweg zoeken',shopsNone:'Geen resultaten (offline of geen winkels)',from:'van jou',
+amount:'Bedrag (€)',cat:'Categorie',note:'Notitie',month:'Maand',total:'Totaal',byCat:'Per categorie',
+cats:'Eten,Huis,Volkstuin,Vervoer,Gezondheid,Rekeningen,Uitjes,Overig',
+settings:'Instellingen',name:'Je naam',home:'Thuis (startpunt)',notif:'Meldingen',enableNotif:'Meldingen toestaan',backup:'Back-up (JSON)',restore:'Herstellen',
+age:'Module voor medicinale-cannabispatiënten (18+)',ageQ:'Ik bevestig dat ik 18+ ben en cannabis op recept gebruik.',disc:'Dit is geen medisch advies. De app rekent alleen de voorraad – geen doseringen of adviezen.',confirm:'Bevestigen',
+stock:'Totale voorraad',avg7:'Gemiddeld / dag (7 d)',runout:'Op rond',orderBy:'Bestellen / recept aanvragen vóór',critical:'Kritieke voorraad',threshold:'Kritieke drempel (g)',delivery:'Leverdagen',rxLead:'Dagen voor recept',
+jars:'Potten / aankopen',strain:'Soort',grams:'Gram',bought:'Gekocht',addJar:'Pot toevoegen',weigh:'Weging vandaag',startDay:'Begin dag (g)',endDay:'Einde dag (g)',saveWeigh:'Weging opslaan',
+used:'verbruikt',left:'over',history:'Historie (dagverbruik)',noData:'Te weinig data – weeg de pot aan begin en eind van de dag.',belowCrit:'Voorraad onder kritieke drempel!',orderNow:'Tijd om te bestellen / recept aan te vragen',
+price:'Actuele prijs',regular:'normale prijs (geen uitverkoop)',pharm:'Apotheken met deze soort',pickupYes:'afhalen: ja',pickupUnk:'afhalen: onbekend',routes:'Routes berekenen',car:'auto',bike:'fiets',walk:'lopen',pt:'OV',est:'schatting',
+noMatch:'Soort niet in prijsdatabase.',loading:'Laden…',offline:'Offline – opgeslagen data',dist:'afst.',active:'in gebruik',closed:'leeg',del:'Verwijderen',
+prDisc:'Prijzen van openbare vergelijkers (DE), mogelijk verouderd. Normale prijs, geen uitverkoop.',locFrom:'Berekend vanaf',gps:'GPS',notifTitle:'Ogarniacz'},
+en:{today:'Today',cal:'Calendar',lists:'Lists',budget:'Budget',supply:'Supply',more:'More',
+morning:'Good morning',afternoon:'Good afternoon',evening:'Good evening',planToday:'Your plan for today',nothing:'Nothing planned. Add a task in the calendar.',
+wasPlanned:'as planned',readAloud:'Read aloud',routine:'Morning routine',startRoutine:'Start routine',step:'Step',of:'of',next:'Next',done:'Done',skip:'Skip',addStep:'Add step',min:'min',
+routineDone:'Routine finished in',over:'over by',endWork:'End of work – plan for tomorrow',firstStep:'What to start with tomorrow',addTomorrow:'Add for tomorrow',tomorrowSaved:'Saved to tomorrow',
+title:'Title',date:'Date',time:'Time',place:'Place',none:'— none —',add:'Add',task:'Task',event:'Event',importIcs:'Import .ics',exportIcs:'Export .ics',
+gcal:'Google Calendar sync needs OAuth and a backend – planned future option. For now: .ics export/import.',upcoming:'Upcoming',imported:'Imported',saved:'Saved',
+newList:'New list',listName:'List name',item:'Item',dictate:'Dictate',dictHint:'E.g. “for the allotment I need bin bags and fertiliser”',listening:'Listening…',noSpeech:'Speech recognition not available',
+places:'Places',placeName:'Place name',useGps:'I am here (GPS)',searchAddr:'Search address',radius:'Radius (km)',watchOn:'Place reminders: on (while app open)',watchOff:'Turn on place reminders',
+nearPlace:'You are near',onWay:'On the way to',buy:'buy',shopRoute:'Shop on the way',findShop:'Find supermarket on the way',shopsNone:'No results (offline or no shops)',from:'from you',
+amount:'Amount (€)',cat:'Category',note:'Note',month:'Month',total:'Total',byCat:'By category',
+cats:'Food,Home,Allotment,Transport,Health,Bills,Leisure,Other',
+settings:'Settings',name:'Your name',home:'Home (start point)',notif:'Notifications',enableNotif:'Allow notifications',backup:'Backup (JSON)',restore:'Restore',
+age:'Module for medical cannabis patients (18+)',ageQ:'I confirm I am 18+ and use cannabis on prescription.',disc:'This is not medical advice. The app only tracks supply – no dosing advice.',confirm:'Confirm',
+stock:'Total stock',avg7:'Avg / day (7 days)',runout:'Runs out approx.',orderBy:'Order / request prescription by',critical:'Critical stock',threshold:'Critical threshold (g)',delivery:'Delivery days',rxLead:'Prescription days',
+jars:'Jars / purchases',strain:'Strain',grams:'Grams',bought:'Bought',addJar:'Add jar',weigh:'Weighing today',startDay:'Start of day (g)',endDay:'End of day (g)',saveWeigh:'Save weighing',
+used:'used',left:'left',history:'History (daily use)',noData:'Not enough data – weigh the jar at start and end of day.',belowCrit:'Stock below critical threshold!',orderNow:'Time to order / request prescription',
+price:'Current price',regular:'regular price (not clearance sale)',pharm:'Pharmacies with this strain',pickupYes:'pickup: yes',pickupUnk:'pickup: unknown',routes:'Compute routes',car:'car',bike:'bike',walk:'walk',pt:'transit',est:'estimate',
+noMatch:'Strain not in price DB.',loading:'Loading…',offline:'Offline – using saved data',dist:'dist.',active:'in use',closed:'empty',del:'Delete',
+prDisc:'Prices from public comparison sites (DE), may be outdated. Regular price, not sale price.',locFrom:'Measured from',gps:'GPS',notifTitle:'Ogarniacz'}};
+const PRICES_URL='https://raw.githubusercontent.com/mikry119-cloud/blisko-ceny/main/prices.json';
+const GEO_URL='https://raw.githubusercontent.com/mikry119-cloud/blisko-ceny/main/pharmacies_geo.json';
+const KEY='ogarniacz.v1';
+const defState=()=>({lang:'pl',name:'',home:{label:'Papendrecht',lat:51.8317,lon:4.6878},tab:'today',
+ events:[],lists:[{id:'l1',name:'Zakupy',placeId:'',items:[]}],places:[],
+ routine:[{t:'Wstań, wypij wodę',m:2},{t:'Toaleta',m:5},{t:'Umyj się',m:8},{t:'Ubierz się',m:5},{t:'Śniadanie',m:15},{t:'Sprawdź plan dnia',m:3}],
+ expenses:[],watch:false,notified:{},
+ cann:{ok18:false,threshold:10,delivery:3,rx:2,jars:[],weighs:[]}});
+let S;try{S=Object.assign(defState(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){S=defState()}
+S.cann=Object.assign(defState().cann,S.cann||{});
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const t=k=>(I[S.lang]||I.pl)[k]??I.pl[k]??k;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>ymd(new Date());
+const addDays=(s,n)=>{const d=new Date(s+'T12:00');d.setDate(d.getDate()+n);return ymd(d)};
+const loc=()=>({pl:'pl-PL',nl:'nl-NL',en:'en-GB'}[S.lang]);
+const fmtD=s=>new Date(s+'T12:00').toLocaleDateString(loc(),{weekday:'short',day:'numeric',month:'short'});
+const eur=n=>new Intl.NumberFormat(loc(),{style:'currency',currency:'EUR'}).format(n||0);
+const g1=n=>(Math.round(n*10)/10).toLocaleString(loc());
+function toast(m){const e=$('#toast');e.textContent=m;e.classList.remove('hide');clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.add('hide'),2800)}
+function hav(a,b,c,d){const R=6371,r=Math.PI/180,x=Math.sin((c-a)*r/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin((d-b)*r/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+const hm=min=>{min=Math.round(min);return min<60?min+' min':Math.floor(min/60)+' h '+pad(min%60)}
+async function fetchJ(u,ms=12000){const c=new AbortController();const h=setTimeout(()=>c.abort(),ms);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw Error(r.status);return await r.json()}finally{clearTimeout(h)}}
+
+/* ===== notifications (Android bridge / Web Notifications / SW) ===== */
+async function notify(title,body){
+ try{if(window.AndroidNotify&&AndroidNotify.notify(title,body))return true}catch(e){}
+ try{if('Notification'in window&&Notification.permission==='granted'){
+  const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();
+  if(reg)reg.showNotification(title,{body,icon:'icons/icon-192.png'});else new Notification(title,{body});return true}}catch(e){}
+ toast(title+': '+body);return false}
+function askNotif(){if(window.AndroidNotify){AndroidNotify.requestPermission();return}
+ if('Notification'in window)Notification.requestPermission().then(p=>toast(p));else toast('Safari: '+ (navigator.standalone?'—':'Udostępnij › Do ekranu początkowego'))}
+/* ===== TTS ===== */
+function speak(txt){try{if(window.AndroidTTS){AndroidTTS.setLang(loc());AndroidTTS.speak(txt,'g1',1,1);return}
+ if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang=loc();speechSynthesis.speak(u)}}catch(e){}}
+/* ===== speech recognition ===== */
+let recCb=null,webRec=null;
+window.__speech=(type,txt)=>{const b=$('#micBtn');if(type==='start'){b&&b.classList.add('rec');return}
+ if(type==='partial'){const o=$('#dictOut');if(o)o.value=txt;return}
+ b&&b.classList.remove('rec');if(type==='final'&&recCb)recCb(txt);if(type==='error'&&txt!=='7')toast(t('noSpeech')+' ('+txt+')')};
+function dictate(cb){recCb=cb;
+ if(window.AndroidSpeech&&AndroidSpeech.available()){AndroidSpeech.start(loc());toast(t('listening'));return}
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast(t('noSpeech'));return}
+ webRec=new SR();webRec.lang=loc();webRec.interimResults=true;
+ webRec.onstart=()=>__speech('start');webRec.onerror=e=>__speech('error',e.error);
+ webRec.onresult=e=>{const r=e.results[e.results.length-1];__speech(r.isFinal?'final':'partial',r[0].transcript)};webRec.start()}
+/* parse "na działkę potrzebuję X, Y i Z" -> {place, items} */
+function parseDict(txt){const low=txt.toLowerCase();let place=null;
+ for(const p of S.places){const n=p.name.toLowerCase();const stem=n.slice(0,Math.max(4,n.length-2));if(low.includes(stem)){place=p;break}}
+ let body=txt.replace(/^.*?(potrzebuj\w*|kupić|kupi[ćc]|kup|muszę mieć|nodig|need|buy|kopen)\s*/i,'');
+ const items=body.split(/,|;|\s+i\s+|\s+oraz\s+|\s+en\s+|\s+and\s+/i).map(s=>s.trim().replace(/[.!?]$/,'')).filter(Boolean);
+ return{place,items}}
+function addDictated(txt){const{place,items}=parseDict(txt);if(!items.length)return;
+ let l=place?S.lists.find(x=>x.placeId===place.id):null;
+ if(place&&!l){l={id:uid(),name:place.name,placeId:place.id,items:[]};S.lists.push(l)}
+ if(!l)l=S.lists[0]||(S.lists[0]={id:uid(),name:'Zakupy',placeId:'',items:[]});
+ items.forEach(i=>l.items.push({t:i,done:false}));save();toast('+'+items.length+' → '+l.name);render()}
+
+/* ===== tabs ===== */
+const TABS=[['today','☀'],['cal','▦'],['lists','☰'],['budget','€'],['supply','⚖'],['more','⚙']];
+function nav(){ $('#nav').innerHTML=TABS.map(([k,i])=>`<button class="${S.tab===k?'on':''}" onclick="go('${k}')"><b>${i}</b>${t(k)}</button>`).join('')}
+function go(k){S.tab=k;save();render();scrollTo(0,0)}
+function render(){document.documentElement.lang=S.lang;$('#lang').value=S.lang;nav();$('#main').innerHTML=(V[S.tab]||V.today)();(A[S.tab]||(()=>{}))()}
+$('#lang').onchange=e=>{S.lang=e.target.value;save();render()};
+const V={},A={};
+
+/* ----- TODAY ----- */
+function todays(d=today()){return S.events.filter(e=>e.date===d).sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'))}
+function greetText(){const h=new Date().getHours();const g=h<12?t('morning'):h<18?t('afternoon'):t('evening');
+ const ev=todays();const nm=S.name?', '+S.name:'';
+ if(!ev.length)return g+nm+'! '+t('nothing');
+ return g+nm+'! '+t('planToday')+': '+ev.map(e=>(e.time?e.time+' ':'')+e.title).join('; ')+' – '+t('wasPlanned')+'.'}
+let RT=null;
+V.today=()=>{const ev=todays();const h=new Date().getHours();const g=h<12?t('morning'):h<18?t('afternoon'):t('evening');
+ const tm=todays(addDays(today(),1));const supply=cannSummary();
+ return `<div class="card" style="background:linear-gradient(135deg,#4E7C7A,#2F4858);color:#fff;border:0">
+ <div class="mut" style="color:#ffffffbb">${new Date().toLocaleDateString(loc(),{weekday:'long',day:'numeric',month:'long'})}</div>
+ <div style="font-size:22px;font-weight:600;margin:4px 0 8px">${g}${S.name?', '+esc(S.name):''}!</div>
+ <div>${t('planToday')}:</div>
+ ${ev.length?ev.map(e=>`<div class="li" style="border-color:#ffffff33"><input type=checkbox style="width:auto" ${e.done?'checked':''} onchange="tog('${e.id}')"><span class="t">${e.time?'<b>'+e.time+'</b> ':''}${esc(e.title)}${e.placeId?' · 📍'+esc(pName(e.placeId)):''}</span></div>`).join(''):'<div style="opacity:.8">'+t('nothing')+'</div>'}
+ <div class="row" style="margin-top:8px"><button class="btn sec sm nf" onclick="speak(greetText())">🔊 ${t('readAloud')}</button></div></div>
+ ${placeReminderCards()}
+ ${supply&&supply.alert?`<div class="alert" onclick="go('supply')">⚖ ${supply.alert}</div>`:''}
+ <div class="card"><h2>${t('routine')}</h2><div id="rt">${RT?routineRun():routineList()}</div></div>
+ <div class="card"><h2>${t('endWork')}</h2>
+ ${tm.map(e=>`<div class="li"><span class="t">${e.time?'<b>'+e.time+'</b> ':''}${esc(e.title)}</span><button class="x" onclick="delEv('${e.id}')">×</button></div>`).join('')}
+ <div class="row" style="margin-top:6px"><input id="tmT" placeholder="${t('task')}"><input id="tmH" type=time class="nf" style="width:100px"><button class="btn nf" onclick="addTm()">+</button></div>
+ <div class="mut small" style="margin-top:6px">${t('firstStep')}: ${tm[0]?esc(tm[0].title):'—'}</div></div>`};
+const pName=id=>(S.places.find(p=>p.id===id)||{}).name||'';
+function tog(id){const e=S.events.find(x=>x.id===id);e.done=!e.done;save()}
+function delEv(id){S.events=S.events.filter(x=>x.id!==id);save();render()}
+function addTm(){const v=$('#tmT').value.trim();if(!v)return;S.events.push({id:uid(),date:addDays(today(),1),time:$('#tmH').value,title:v,type:'task'});save();toast(t('tomorrowSaved'));render()}
+function routineList(){const tot=S.routine.reduce((a,b)=>a+ +b.m,0);
+ return S.routine.map((r,i)=>`<div class="li"><span class="t">${i+1}. ${esc(r.t)}</span><input type=number min=1 value="${r.m}" style="width:62px" onchange="S.routine[${i}].m=+this.value;save()"><span class="mut small">${t('min')}</span><button class="x" onclick="S.routine.splice(${i},1);save();render()">×</button></div>`).join('')+
+ `<div class="row" style="margin-top:6px"><input id="rtN" placeholder="${t('addStep')}"><button class="btn sec nf" onclick="if($('#rtN').value){S.routine.push({t:$('#rtN').value,m:5});save();render()}">+</button></div>
+ <div class="row" style="margin-top:8px"><button class="btn acc" onclick="rtStart()">▶ ${t('startRoutine')} (${tot} ${t('min')})</button></div>`}
+function rtStart(){RT={i:0,stepStart:Date.now(),start:Date.now(),beeped:false};render();RT.h=setInterval(rtTick,500)}
+function routineRun(){const r=S.routine[RT.i];return `<div class="mut">${t('step')} ${RT.i+1} ${t('of')} ${S.routine.length}</div><div style="font-size:20px;font-weight:600">${esc(r.t)}</div><div class="timer" id="rtT">--:--</div><div class="bar"><i id="rtB" style="width:0"></i></div>
+ <div class="row" style="margin-top:10px"><button class="btn sec" onclick="rtNext(1)">${t('skip')}</button><button class="btn acc" onclick="rtNext()">${RT.i+1<S.routine.length?t('next'):t('done')} ✓</button></div>`}
+function beep(){try{const c=new(window.AudioContext||webkitAudioContext)(),o=c.createOscillator();o.connect(c.destination);o.frequency.value=880;o.start();o.stop(c.currentTime+.4)}catch(e){};navigator.vibrate&&navigator.vibrate(300)}
+function rtTick(){if(!RT||!$('#rtT')){return}const r=S.routine[RT.i];const left=r.m*60-(Date.now()-RT.stepStart)/1000;const a=Math.abs(left);
+ $('#rtT').textContent=(left<0?'+':'')+pad(Math.floor(a/60))+':'+pad(Math.floor(a%60));$('#rtT').style.color=left<0?'var(--bad)':'';
+ $('#rtB').style.width=Math.min(100,100-left/(r.m*60)*100)+'%';if(left<0&&!RT.beeped){RT.beeped=true;beep()}}
+function rtNext(){RT.i++;RT.stepStart=Date.now();RT.beeped=false;if(RT.i>=S.routine.length){clearInterval(RT.h);const m=(Date.now()-RT.start)/60000;const plan=S.routine.reduce((a,b)=>a+ +b.m,0);RT=null;
+ toast(t('routineDone')+' '+hm(m)+(m>plan?' ('+t('over')+' '+hm(m-plan)+')':''));}render()}
+
+/* ----- places & location reminders ----- */
+let POS=null,lastDist={};
+function placeReminderCards(){let out='';const d=today();
+ // calendar-based: today's events at a place with open list items
+ for(const e of todays()){if(!e.placeId)continue;const l=S.lists.find(x=>x.placeId===e.placeId);const open=l?l.items.filter(i=>!i.done):[];
+  if(open.length)out+=`<div class="ok">🚗 ${t('onWay')} <b>${esc(pName(e.placeId))}</b>: ${t('buy')} ${open.map(i=>esc(i.t)).join(', ')} <button class="btn sm acc" onclick="go('lists')">${t('shopRoute')}</button></div>`}
+ return out}
+function startWatch(){if(!navigator.geolocation)return;if(startWatch.id!=null)return;
+ startWatch.id=navigator.geolocation.watchPosition(p=>{POS={lat:p.coords.latitude,lon:p.coords.longitude};checkPlaces()},()=>{},{enableHighAccuracy:false,maximumAge:60000})}
+function checkPlaces(){if(!POS)return;const d=today();
+ for(const p of S.places){if(p.lat==null)continue;const l=S.lists.find(x=>x.placeId===p.id);const open=l?l.items.filter(i=>!i.done):[];if(!open.length)continue;
+  const dist=hav(POS.lat,POS.lon,p.lat,p.lon),prev=lastDist[p.id];lastDist[p.id]=dist;const k=p.id+d;
+  const near=dist<=(+p.r||1.5);const heading=prev!=null&&prev-dist>0.3&&dist<15&&todays().some(e=>e.placeId===p.id);
+  if((near||heading)&&!S.notified[k]){S.notified[k]=1;save();notify(t('notifTitle'),(near?t('nearPlace'):t('onWay'))+' '+p.name+' – '+t('buy')+': '+open.map(i=>i.t).join(', '))}}}
+function getPos(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej('nogeo');navigator.geolocation.getCurrentPosition(p=>{POS={lat:p.coords.latitude,lon:p.coords.longitude};res(POS)},rej,{timeout:12000,maximumAge:300000})})}
+async function geocode(q){const r=await fetchJ('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='+encodeURIComponent(q));if(!r.length)throw 0;return{lat:+r[0].lat,lon:+r[0].lon,label:q}}
+/* Overpass: supermarkets within 1.2 km of the straight line from me to target */
+async function shopsOnRoute(target){const me=POS||await getPos().catch(()=>S.home);const pts=[];
+ const n=target?Math.min(12,Math.max(2,Math.ceil(hav(me.lat,me.lon,target.lat,target.lon)/3))):1;
+ for(let i=0;i<=n;i++){const f=target?i/n:0;pts.push((me.lat+(target?(target.lat-me.lat)*f:0)).toFixed(5),(me.lon+(target?(target.lon-me.lon)*f:0)).toFixed(5))}
+ const q=`[out:json][timeout:20];nwr(around:${target?1200:3000},${pts.join(',')})["shop"~"supermarket|convenience|doityourself|garden_centre"];out center 40;`;
+ const r=await fetchJ('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q),25000);
+ return r.elements.map(e=>({name:e.tags.name||e.tags.brand||e.tags.shop,kind:e.tags.shop,lat:e.lat??e.center.lat,lon:e.lon??e.center.lon})).map(s=>(s.d=hav(me.lat,me.lon,s.lat,s.lon),s)).sort((a,b)=>a.d-b.d).slice(0,6)}
+
+/* ----- CALENDAR ----- */
+V.cal=()=>{const up=S.events.filter(e=>e.date>=addDays(today(),-1)).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));let last='';
+ return `<div class="card"><h2>${t('add')}</h2><input id="evT" placeholder="${t('title')}" style="margin-bottom:6px">
+ <div class="row"><input id="evD" type=date value="${today()}"><input id="evH" type=time><select id="evP"><option value="">${t('place')}: ${t('none')}</option>${S.places.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
+ <div class="row" style="margin-top:8px"><button class="btn" onclick="addEv()">${t('add')}</button></div></div>
+ <div class="card"><h2>${t('upcoming')}</h2>${up.length?up.map(e=>{const h=e.date!==last?`<h3>${fmtD(e.date)}</h3>`:'';last=e.date;
+  return h+`<div class="li ${e.done?'done':''}"><input type=checkbox style="width:auto" ${e.done?'checked':''} onchange="tog('${e.id}');render()"><span class="t">${e.time?'<b>'+e.time+'</b> ':''}${esc(e.title)} ${e.placeId?'<span class=chip>📍'+esc(pName(e.placeId))+'</span>':''}</span><button class="x" onclick="delEv('${e.id}')">×</button></div>`}).join(''):'<div class=mut>—</div>'}</div>
+ <div class="card"><div class="row"><label class="btn sec" style="text-align:center">${t('importIcs')}<input type=file accept=".ics,text/calendar" class="hide" onchange="impIcs(this)"></label><button class="btn sec" onclick="expIcs()">${t('exportIcs')}</button></div>
+ <p class="mut small">${t('gcal')}</p></div>`};
+function addEv(){const v=$('#evT').value.trim();if(!v)return;S.events.push({id:uid(),date:$('#evD').value||today(),time:$('#evH').value,title:v,placeId:$('#evP').value,type:'event'});save();toast(t('saved'));render()}
+function icsEsc(s){return String(s).replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n')}
+function expIcs(){const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//KMK//Ogarniacz//PL'];const st=new Date().toISOString().replace(/[-:]|\.\d+/g,'');
+ for(const e of S.events){const d=e.date.replace(/-/g,'');L.push('BEGIN:VEVENT','UID:'+e.id+'@ogarniacz','DTSTAMP:'+st);
+  if(e.time){const s=d+'T'+e.time.replace(':','')+'00';L.push('DTSTART:'+s,'DURATION:PT1H')}else L.push('DTSTART;VALUE=DATE:'+d);
+  L.push('SUMMARY:'+icsEsc(e.title));if(e.placeId)L.push('LOCATION:'+icsEsc(pName(e.placeId)));L.push('END:VEVENT')}
+ L.push('END:VCALENDAR');saveFile('ogarniacz.ics','text/calendar',L.join('\r\n'))}
+function saveFile(name,mime,txt){if(window.AndroidFile){const r=AndroidFile.save(name,mime,txt);toast(r?t('saved')+': '+r:'!');return}
+ const f=new File([txt],name,{type:mime});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(()=>{});return}
+ const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=name;a.click()}
+function impIcs(inp){const f=inp.files[0];if(!f)return;f.text().then(txt=>{txt=txt.replace(/\r?\n[ \t]/g,'');let n=0;
+ for(const b of txt.split('BEGIN:VEVENT').slice(1)){const g=k=>{const m=b.match(new RegExp('^'+k+'[^:\\n]*:(.*)$','m'));return m?m[1].trim():''};
+  const ds=g('DTSTART');if(!ds)continue;const m=ds.match(/(\d{4})(\d\d)(\d\d)(?:T(\d\d)(\d\d))?/);if(!m)continue;
+  let date=m[1]+'-'+m[2]+'-'+m[3],time=m[4]?m[4]+':'+m[5]:'';
+  if(m[4]&&/Z$/.test(ds)){const d=new Date(Date.UTC(+m[1],m[2]-1,+m[3],+m[4],+m[5]));date=ymd(d);time=pad(d.getHours())+':'+pad(d.getMinutes())}
+  const uidv=g('UID')||uid();if(S.events.some(e=>e.uid===uidv))continue;
+  const title=g('SUMMARY').replace(/\\([,;\\])/g,'$1').replace(/\\n/g,' ');const lc=g('LOCATION').toLowerCase();
+  const pl=S.places.find(p=>lc&&lc.includes(p.name.toLowerCase()));S.events.push({id:uid(),uid:uidv,date,time,title,placeId:pl?pl.id:'',type:'event'});n++}
+ save();toast(t('imported')+': '+n);render()})}
+
+/* ----- LISTS + PLACES ----- */
+V.lists=()=>`<div class="card"><div class="row"><textarea id="dictOut" rows=2 placeholder="${t('dictHint')}"></textarea><button id="micBtn" class="mic" onclick="dictate(addDictated)" title="${t('dictate')}">🎤</button></div>
+ <div class="row" style="margin-top:6px"><button class="btn sec sm" onclick="addDictated($('#dictOut').value);$('#dictOut').value=''">${t('add')}</button></div></div>
+ ${S.lists.map((l,li)=>`<div class="card"><div class="row"><h2 style="margin:0">${esc(l.name)}</h2><span class="nf">${l.placeId?'<span class=chip>📍'+esc(pName(l.placeId))+'</span>':''}<button class="x" onclick="if(confirm('${t('del')}?')){S.lists.splice(${li},1);save();render()}">×</button></span></div>
+ ${l.items.map((it,ii)=>`<div class="li ${it.done?'done':''}"><input type=checkbox style="width:auto" ${it.done?'checked':''} onchange="S.lists[${li}].items[${ii}].done=this.checked;save();render()"><span class="t">${esc(it.t)}</span><button class="x" onclick="S.lists[${li}].items.splice(${ii},1);save();render()">×</button></div>`).join('')}
+ <div class="row" style="margin-top:6px"><input id="it${li}" placeholder="${t('item')}" onkeydown="if(event.key==='Enter')addIt(${li})"><button class="btn sec nf" onclick="addIt(${li})">+</button></div>
+ ${l.placeId?`<div class="row" style="margin-top:8px"><button class="btn acc sm" onclick="findShops('${l.placeId}',${li})">🛒 ${t('findShop')}</button></div><div id="shops${li}"></div>`:''}</div>`).join('')}
+ <div class="card"><h2>${t('newList')}</h2><div class="row"><input id="nlN" placeholder="${t('listName')}"><select id="nlP"><option value="">${t('place')}: ${t('none')}</option>${S.places.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select><button class="btn nf" onclick="if($('#nlN').value){S.lists.push({id:uid(),name:$('#nlN').value,placeId:$('#nlP').value,items:[]});save();render()}">+</button></div></div>
+ <div class="card"><h2>📍 ${t('places')}</h2>${S.places.map((p,i)=>`<div class="li"><span class="t"><b>${esc(p.name)}</b> <span class="mut small">${p.lat!=null?p.lat.toFixed(3)+', '+p.lon.toFixed(3):'?'}${POS&&p.lat!=null?' · '+g1(hav(POS.lat,POS.lon,p.lat,p.lon))+' km':''}</span></span><input type=number step=.5 value="${p.r||1.5}" style="width:64px" title="${t('radius')}" onchange="S.places[${i}].r=+this.value;save()"><button class="x" onclick="S.places.splice(${i},1);save();render()">×</button></div>`).join('')}
+ <input id="plN" placeholder="${t('placeName')} (np. działka)" style="margin-top:6px"><input id="plA" placeholder="${t('searchAddr')}" style="margin-top:6px">
+ <div class="row" style="margin-top:6px"><button class="btn sec" onclick="addPlace(true)">${t('useGps')}</button><button class="btn sec" onclick="addPlace(false)">${t('searchAddr')}</button></div>
+ <div class="row" style="margin-top:8px"><button class="btn ${S.watch?'acc':''}" onclick="S.watch=!S.watch;save();if(S.watch){startWatch();askNotif()}render()">${S.watch?'✓ '+t('watchOn'):t('watchOff')}</button></div></div>`;
+function addIt(li){const e=$('#it'+li);if(!e.value.trim())return;S.lists[li].items.push({t:e.value.trim(),done:false});save();render();setTimeout(()=>$('#it'+li).focus(),0)}
+async function addPlace(gps){const n=$('#plN').value.trim();if(!n)return;try{const p=gps?await getPos():await geocode($('#plA').value||n);S.places.push({id:uid(),name:n,lat:p.lat,lon:p.lon,r:1.5});save();render()}catch(e){toast('GPS/geocode ✗')}}
+async function findShops(pid,li){const box=$('#shops'+li);box.innerHTML='<div class=mut>'+t('loading')+'</div>';const p=S.places.find(x=>x.id===pid);
+ try{const s=await shopsOnRoute(p&&p.lat!=null?p:null);box.innerHTML=s.length?s.map(x=>`<div class="li"><span class="t">🛒 <b>${esc(x.name)}</b> <span class="mut small">${x.kind} · ${g1(x.d)} km ${t('from')}</span></span><a class="btn sec sm nf" href="https://www.google.com/maps/dir/?api=1&destination=${x.lat},${x.lon}" target=_blank>➜</a></div>`).join('')+'<div class="mut small">© OpenStreetMap (Overpass)</div>':'<div class=mut>'+t('shopsNone')+'</div>'}catch(e){box.innerHTML='<div class=mut>'+t('shopsNone')+'</div>'}}
+
+/* ----- BUDGET ----- */
+V.budget=()=>{const cats=t('cats').split(',');const m=S.bm||today().slice(0,7);const ex=S.expenses.filter(e=>e.date.slice(0,7)===m);const tot=ex.reduce((a,b)=>a+b.amount,0);
+ const by={};ex.forEach(e=>by[e.cat]=(by[e.cat]||0)+e.amount);const mx=Math.max(1,...Object.values(by));
+ const prev=new Date(m+'-15');prev.setMonth(prev.getMonth()-1);const pm=ymd(prev).slice(0,7);const ptot=S.expenses.filter(e=>e.date.slice(0,7)===pm).reduce((a,b)=>a+b.amount,0);
+ return `<div class="card"><h2>${t('add')}</h2><div class="row"><input id="exA" type=number step=.01 inputmode=decimal placeholder="${t('amount')}"><select id="exC">${cats.map((c,i)=>`<option value="${i}">${c}</option>`).join('')}</select></div>
+ <div class="row" style="margin-top:6px"><input id="exN" placeholder="${t('note')}"><input id="exD" type=date value="${today()}" class="nf" style="width:150px"></div>
+ <div class="row" style="margin-top:8px"><button class="btn" onclick="addEx()">${t('add')}</button></div></div>
+ <div class="card"><div class="row"><h2 style="margin:0">${t('month')}</h2><input type=month value="${m}" onchange="S.bm=this.value;save();render()"></div>
+ <div class="big" style="margin-top:8px">${eur(tot)}</div><div class="mut small">${pm}: ${eur(ptot)}${ptot?' ('+(tot>=ptot?'+':'')+Math.round((tot-ptot)/ptot*100)+'%)':''}</div>
+ <h3>${t('byCat')}</h3>${Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div style="margin:6px 0"><div class="row"><span>${cats[c]||c}</span><b class="nf">${eur(v)}</b></div><div class="bar"><i style="width:${v/mx*100}%"></i></div></div>`).join('')||'<div class=mut>—</div>'}
+ <h3>${t('total')}</h3>${ex.sort((a,b)=>b.date.localeCompare(a.date)).map(e=>`<div class="li"><span class="t">${fmtD(e.date)} · ${cats[e.cat]||''} ${e.note?'· '+esc(e.note):''}</span><b>${eur(e.amount)}</b><button class="x" onclick="S.expenses=S.expenses.filter(x=>x.id!=='${e.id}');save();render()">×</button></div>`).join('')}</div>`};
+function addEx(){const a=parseFloat(String($('#exA').value).replace(',','.'));if(!(a>0))return;S.expenses.push({id:uid(),date:$('#exD').value||today(),amount:a,cat:+$('#exC').value,note:$('#exN').value});save();render()}
+
+/* ----- SUPPLY (medical cannabis) ----- */
+function jarStock(j){const w=S.cann.weighs.filter(x=>x.jar===j.id).sort((a,b)=>a.date.localeCompare(b.date));if(!w.length)return j.grams;const l=w[w.length-1];return l.end!=null&&l.end!==''?+l.end:+l.start}
+function dailyUse(){const C=S.cann,use={};
+ for(const j of C.jars){const w=C.weighs.filter(x=>x.jar===j.id).sort((a,b)=>a.date.localeCompare(b.date));let prevEnd=null,prevD=null;
+  // first day: from purchase grams to first start
+  w.forEach((x,i)=>{let u=0;const s=+x.start,e=(x.end===''||x.end==null)?null:+x.end;
+   const before=i===0?(addDays(x.date,-1)<=j.bought&&j.bought<=x.date?+j.grams:null):(prevD===addDays(x.date,-1)?prevEnd:null);
+   if(before!=null&&s>0&&before>s)u+=before-s; // between weighings (evening/night)
+   if(e!=null&&s>=e)u+=s-e;
+   use[x.date]=(use[x.date]||0)+u;prevEnd=e!=null?e:s;prevD=x.date;});}
+ return use}
+function cannSummary(){const C=S.cann;if(!C.ok18||!C.jars.length)return null;
+ const stock=C.jars.filter(j=>!j.closed).reduce((a,j)=>a+Math.max(0,jarStock(j)),0);const use=dailyUse();
+ let sum=0,days=0;for(let i=0;i<7;i++){const d=addDays(today(),-i);if(use[d]!=null){sum+=use[d];days++}}
+ let avg=days?sum/days:null;
+ if(avg==null||days<2){ // fallback from purchases
+  const first=C.jars.map(j=>j.bought).sort()[0];const span=Math.max(1,(new Date(today())-new Date(first))/864e5);const bought=C.jars.reduce((a,j)=>a+ +j.grams,0);
+  if(span>=3&&bought>stock)avg=(bought-stock)/span}
+ const r={stock,avg,days,use};
+ if(avg>0){r.runDays=stock/avg;r.runout=addDays(today(),Math.floor(r.runDays));const toCrit=Math.max(0,(stock-C.threshold)/avg);
+  r.orderBy=addDays(today(),Math.floor(toCrit-C.delivery-C.rx));if(r.orderBy<today())r.orderBy=today()}
+ if(stock<C.threshold)r.alert=t('belowCrit')+' ('+g1(stock)+' g < '+C.threshold+' g)';else if(r.orderBy&&r.orderBy<=addDays(today(),1))r.alert=t('orderNow')+' – '+fmtD(r.orderBy);
+ return r}
+V.supply=()=>{const C=S.cann;
+ if(!C.ok18)return `<div class="card"><h2>${t('age')}</h2><p>${t('ageQ')}</p><p class="alert">${t('disc')}</p><button class="btn" onclick="S.cann.ok18=true;save();render()">${t('confirm')} (18+)</button></div>`;
+ const s=cannSummary()||{stock:0};const act=C.jars.filter(j=>!j.closed);
+ const use=s.use||{};const hist=Object.keys(use).sort().slice(-14).reverse();
+ return `<div class="mut small" style="margin-bottom:8px">⚠ ${t('disc')}</div>${s.alert?`<div class="alert">⚠ ${s.alert}</div>`:''}
+ <div class="card"><div class="row"><div><div class="mut small">${t('stock')}</div><div class="big">${g1(s.stock)} g</div></div><div><div class="mut small">${t('avg7')}</div><div class="big">${s.avg?g1(s.avg)+' g':'—'}</div></div></div>
+ ${s.runout?`<div class="li"><span class="t">${t('runout')}</span><b>${fmtD(s.runout)}</b></div><div class="li"><span class="t">${t('orderBy')}</span><b style="color:var(--bad)">${fmtD(s.orderBy)}</b></div>`:`<div class="mut small">${t('noData')}</div>`}
+ <div class="row small mut" style="margin-top:8px"><label>${t('threshold')}<input type=number value="${C.threshold}" onchange="S.cann.threshold=+this.value;save();render()"></label><label>${t('delivery')}<input type=number value="${C.delivery}" onchange="S.cann.delivery=+this.value;save();render()"></label><label>${t('rxLead')}<input type=number value="${C.rx}" onchange="S.cann.rx=+this.value;save();render()"></label></div></div>
+ <div class="card"><h2>${t('weigh')} · ${fmtD(today())}</h2>${act.length?`<select id="wJ">${act.map(j=>`<option value="${j.id}">${esc(j.strain)} (${g1(jarStock(j))} g)</option>`).join('')}</select>
+ <div class="row" style="margin-top:6px"><input id="wS" type=number step=.01 inputmode=decimal placeholder="${t('startDay')}"><input id="wE" type=number step=.01 inputmode=decimal placeholder="${t('endDay')}"></div>
+ <div class="row" style="margin-top:6px"><button class="btn" onclick="saveW()">${t('saveWeigh')}</button></div><div class="mut small" style="margin-top:4px">Tara: ${S.lang==='pl'?'waż samą zawartość (odejmij wagę słoika)':'net weight'}</div>`:'<div class=mut>—</div>'}</div>
+ <div class="card"><h2>${t('jars')}</h2>${C.jars.map((j,i)=>`<div class="li ${j.closed?'done':''}"><span class="t"><b>${esc(j.strain)}</b> <span class="mut small">${g1(j.grams)} g · ${fmtD(j.bought)} · ${t('left')} ${g1(jarStock(j))} g</span></span>
+  <button class="btn sm ${j.active?'acc':'sec'} nf" onclick="S.cann.jars.forEach(x=>x.active=false);S.cann.jars[${i}].active=true;save();render()">${j.active?'✓ ':''}${t('active')}</button><button class="x" title="${t('closed')}" onclick="S.cann.jars[${i}].closed=!S.cann.jars[${i}].closed;save();render()">${j.closed?'↺':'∅'}</button><button class="x" onclick="if(confirm('${t('del')}?')){S.cann.weighs=S.cann.weighs.filter(w=>w.jar!=='${j.id}');S.cann.jars.splice(${i},1);save();render()}">×</button></div>`).join('')}
+ <input id="jS" list="strains" placeholder="${t('strain')}" style="margin-top:8px"><datalist id="strains"></datalist>
+ <div class="row" style="margin-top:6px"><input id="jG" type=number step=.1 inputmode=decimal placeholder="${t('grams')}"><input id="jD" type=date value="${today()}"></div>
+ <div class="row" style="margin-top:6px"><button class="btn" onclick="addJar()">${t('addJar')}</button></div></div>
+ <div class="card" id="priceCard"><h2>${t('price')}</h2><div class=mut>${t('loading')}</div></div>
+ <div class="card"><h2>${t('history')}</h2><table>${hist.map(d=>`<tr><td>${fmtD(d)}</td><td style="text-align:right"><b>${g1(use[d])} g</b></td></tr>`).join('')||'<tr><td class=mut>—</td></tr>'}</table></div>`};
+A.supply=()=>{if(S.cann.ok18)loadPrices()};
+function saveW(){const j=$('#wJ').value,s=$('#wS').value,e=$('#wE').value;if(s===''&&e==='')return;const d=today();let w=S.cann.weighs.find(x=>x.jar===j&&x.date===d);
+ if(!w){w={jar:j,date:d,start:'',end:''};S.cann.weighs.push(w)}if(s!=='')w.start=+s;if(e!=='')w.end=+e;if(w.start===''&&w.end!=='')w.start=jarStock(S.cann.jars.find(x=>x.id===j));save();render()}
+function addJar(){const s=$('#jS').value.trim(),g=parseFloat(String($('#jG').value).replace(',','.'));if(!s||!(g>0))return;
+ const first=!S.cann.jars.some(j=>j.active&&!j.closed);S.cann.jars.push({id:uid(),strain:s,grams:g,bought:$('#jD').value||today(),active:first});save();render()}
+/* prices + pharmacies */
+let PR=null,GEO=null;
+async function loadPrices(){try{PR=await fetchJ(PRICES_URL);localStorage.setItem('og.prices',JSON.stringify(PR))}catch(e){PR=PR||JSON.parse(localStorage.getItem('og.prices')||'null');PR&&(PR.__off=1)}
+ try{GEO=await fetchJ(GEO_URL);localStorage.setItem('og.geo',JSON.stringify(GEO))}catch(e){GEO=GEO||JSON.parse(localStorage.getItem('og.geo')||'null')}
+ const dl=$('#strains');if(dl&&PR)dl.innerHTML=[...new Set(PR.products.filter(p=>p.type==='flower').map(p=>p.name))].map(n=>`<option value="${esc(n)}">`).join('');renderPrice()}
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+function matchProducts(strain){const n=norm(strain);if(!PR)return[];const fl=PR.products.filter(p=>p.type==='flower');
+ let m=fl.filter(p=>norm(p.name)===n);if(!m.length)m=fl.filter(p=>norm(p.name).includes(n)||n.includes(norm(p.name)));
+ if(!m.length){const w=n.split(' ').filter(x=>x.length>2);m=fl.filter(p=>{const pn=norm(p.name);return w.length&&w.every(x=>pn.includes(x))})}return m}
+const regPrice=p=>p.promo&&p.price_regular_from?p.price_regular_from:p.price;
+let FROM=null;
+async function renderPrice(){const box=$('#priceCard');if(!box)return;const j=S.cann.jars.find(x=>x.active&&!x.closed)||S.cann.jars.find(x=>!x.closed);
+ if(!j){box.innerHTML=`<h2>${t('price')}</h2><div class=mut>—</div>`;return}if(!PR){box.innerHTML=`<h2>${t('price')}</h2><div class=mut>${t('offline')}</div>`;return}
+ const ms=matchProducts(j.strain);if(!ms.length){box.innerHTML=`<h2>${t('price')} – ${esc(j.strain)}</h2><div class=mut>${t('noMatch')}</div>`;return}
+ const reg=Math.min(...ms.map(regPrice));const ph={};ms.forEach(p=>p.pharmacies.forEach(x=>{if(!ph[x.url]||ph[x.url].price>x.price)ph[x.url]=x}));
+ FROM=FROM||{lat:S.home.lat,lon:S.home.lon,label:S.home.label};
+ const G=(GEO&&GEO.pharmacies)||{};let list=Object.values(ph).map(x=>{const g=G[x.url]||{};const pk=/abhol/i.test(x.name)||g.pickup===true;
+  const d=g.lat!=null?hav(FROM.lat,FROM.lon,g.lat,g.lon):null;return{...x,g,pk,d,city:g.city||x.city}}).sort((a,b)=>(b.pk-a.pk)||((a.d??1e9)-(b.d??1e9)));
+ box.innerHTML=`<h2>${t('price')} – ${esc(j.strain)}</h2><div class="big">${eur(reg)}<span class="mut" style="font-size:14px">/g</span></div><div class="mut small">${t('regular')} · ${esc(ms[0].producer||'')} THC ${ms[0].thc??'?'}% ${PR.__off?'· '+t('offline'):''} · ${(PR.updated||'').slice(0,10)}</div>
+ <h3>${t('pharm')} (${list.length})</h3><div class="row small"><span class="mut">${t('locFrom')}: <b>${esc(FROM.label)}</b></span><button class="btn sec sm nf" onclick="fromGps()">📍 ${t('gps')}</button><button class="btn sec sm nf" onclick="FROM=null;renderPrice()">🏠</button></div>
+ ${list.map((x,i)=>{const est=x.d!=null?estTimes(x.d):null;return `<div class="li" style="display:block"><div class="row"><span><b>${esc(x.name)}</b> <span class="mut small">${esc(x.city||'')}</span></span><span class="nf small">${eur(x.price)}/g</span></div>
+  <div class="small">${x.pk?`<span class="chip g">${t('pickupYes')}</span>`:`<span class="chip">${t('pickupUnk')}</span>`}${x.d!=null?`<span class="chip w">${t('dist')} ${Math.round(x.d)} km${x.g.precision==='city'?' (≈ '+esc(x.city)+')':''}</span>`:''}</div>
+  ${est?`<div class="small" id="rt${i}">🚗 ${hm(est.car)} · 🚲 ${hm(est.bike)} · 🚶 ${hm(est.walk)} · 🚆 ${hm(est.pt)} <span class="mut">(${t('est')})</span></div>
+  <div class="small" style="margin-top:3px"><a href="#" onclick="osrm(${i},${x.g.lat},${x.g.lon});return false">${t('routes')} (OSRM)</a> · ${ptLinks(x)}</div>`:''}</div>`}).join('')}
+ <p class="mut small">${t('prDisc')} ${PR.disclaimer?esc(PR.disclaimer):''} Geo: © OpenStreetMap.</p>`}
+function estTimes(km){const road=km*1.3;return{car:road/75*60+5,bike:road/16*60,walk:road/4.8*60,pt:km*1.4/55*60+30}}
+function ptLinks(x){const o=FROM.lat+','+FROM.lon,d=x.g.lat+','+x.g.lon;
+ return `<a href="https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=transit" target=_blank>Google Maps</a> · <a href="https://9292.nl/" target=_blank>9292</a> · <a href="https://www.bahn.de/buchung/fahrplan/suche#sts=true&so=${encodeURIComponent(FROM.label)}&zo=${encodeURIComponent(x.city||x.name)}" target=_blank>DB Navigator</a>`}
+async function fromGps(){try{const p=await getPos();FROM={...p,label:'GPS'};renderPrice()}catch(e){toast('GPS ✗')}}
+async function osrm(i,lat,lon){const el=$('#rt'+i);const c=FROM.lon+','+FROM.lat+';'+lon+','+lat;const est=estTimes(hav(FROM.lat,FROM.lon,lat,lon));
+ const srv=[['car','https://router.project-osrm.org/route/v1/driving/'],['bike','https://routing.openstreetmap.de/routed-bike/route/v1/bike/'],['walk','https://routing.openstreetmap.de/routed-foot/route/v1/foot/']];
+ el.innerHTML=t('loading');const out={};for(const[k,u]of srv){try{const r=await fetchJ(u+c+'?overview=false',15000);out[k]=r.routes[0].duration/60;out[k+'km']=r.routes[0].distance/1000}catch(e){out[k]=null}}
+ el.innerHTML=`🚗 ${out.car!=null?hm(out.car)+' ('+Math.round(out.carkm)+' km)':hm(est.car)+'*'} · 🚲 ${out.bike!=null?hm(out.bike):hm(est.bike)+'*'} · 🚶 ${out.walk!=null?hm(out.walk):hm(est.walk)+'*'} · 🚆 ${hm(est.pt)} <span class="mut">(${t('pt')}: ${t('est')}${Object.values(out).includes(null)?'; * '+t('est'):''})</span>`}
+
+/* ----- MORE / settings ----- */
+V.more=()=>`<div class="card"><h2>${t('settings')}</h2><label class="mut small">${t('name')}</label><input value="${esc(S.name)}" onchange="S.name=this.value;save()">
+ <label class="mut small" style="display:block;margin-top:8px">${t('home')}: <b>${esc(S.home.label)}</b> (${S.home.lat.toFixed(3)}, ${S.home.lon.toFixed(3)})</label>
+ <div class="row"><input id="hm" placeholder="Papendrecht"><button class="btn sec nf" onclick="geocode($('#hm').value||'Papendrecht').then(h=>{S.home=h;save();render()}).catch(()=>toast('✗'))">${t('searchAddr')}</button><button class="btn sec nf" onclick="getPos().then(p=>{S.home={...p,label:'GPS'};save();render()})">📍</button></div></div>
+ <div class="card"><h2>${t('notif')}</h2><button class="btn sec" onclick="askNotif()">${t('enableNotif')}</button><p class="mut small">iPhone: ${S.lang==='pl'?'powiadomienia działają tylko w aplikacji dodanej do ekranu początkowego (iOS 16.4+).':'notifications only in Home Screen app (iOS 16.4+).'}</p></div>
+ <div class="card"><h2>${t('backup')}</h2><div class="row"><button class="btn sec" onclick="saveFile('ogarniacz-backup.json','application/json',JSON.stringify(S))">⬇ JSON</button><label class="btn sec" style="text-align:center">${t('restore')}<input type=file accept=".json" class="hide" onchange="this.files[0].text().then(x=>{S=Object.assign(defState(),JSON.parse(x));save();render()})"></label></div></div>
+ <p class="mut small">Ogarniacz 1.0 · offline · dane tylko na tym urządzeniu (localStorage). Mapy/trasy: © OpenStreetMap, OSRM, Nominatim, Overpass.</p>`;
+
+/* ===== boot ===== */
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+const qs=new URLSearchParams(location.search);if(qs.get('tab'))S.tab=qs.get('tab');
+render();if(S.watch)startWatch();
+setInterval(()=>{if(S.tab==='today'&&!RT&&!document.activeElement.matches('input,textarea,select'))render()},60000);
+// morning greeting notification once a day
+(function(){const d=today();if(new Date().getHours()>=5&&S.lastGreet!==d&&todays().length){S.lastGreet=d;save();notify(t('notifTitle'),greetText())}
+ const s=cannSummary();if(s&&s.alert&&S.lastCannAlert!==d){S.lastCannAlert=d;save();notify(t('notifTitle'),s.alert)}})();
+</script></body></html>
